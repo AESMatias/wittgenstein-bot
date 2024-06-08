@@ -1,0 +1,16 @@
+{
+  "name": "wittgenstein-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "AESMatias",
+  "license": "MIT",
+  "description": "A Discord BOT.",
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
+  }
+}
