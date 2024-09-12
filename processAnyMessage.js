@@ -2,7 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const { Message } = require('discord.js');
-
+// const { secret_string, global_logs } = require('./config/generalConfig');
+const { getFromConfig } = require('./config/loadSettings');
 
 const saveMessageLog = (logPath, logMessage, title) => {
     fs.readFile(logPath, 'utf8', (err, data) => {
@@ -42,17 +43,17 @@ const saveMessageLog = (logPath, logMessage, title) => {
     });
   };
 
-const processAnyMessage = (message) => {
+const processAnyMessage = async (message) => {
 
+    const {secret_string, global_logs} = await getFromConfig('secret_string', 'global_logs');
 
     if (!(message instanceof Message)){
-        console.error('Message is not an instance of Message class');
+        console.error('Message is not an instance of Message class from discord.js');
         return;
     }
 
     const channelId = message.channel.id;
     const channelName = message.channel.name;
-    const channelType = message.channel.type;
     const messageContent = message.content;
     const messageAuthor = message.author.username;
     const messageAuthorNickname = message.author.globalName;
@@ -64,16 +65,25 @@ const processAnyMessage = (message) => {
     const todayTimestamp = new Date();
     const todayDate = todayTimestamp.getDate();
     const todayMonth = todayTimestamp.getMonth();
-    const todayDateAndMonth = `${todayDate}-${todayMonth}`;
+    // const todayDateAndMonth = `${todayDate}-${todayMonth}`;
     const todayFullDate = `${todayDate}-${todayMonth}-${todayTimestamp.getFullYear()}`;
     const todayTime = todayTimestamp.toLocaleTimeString();
     const fileTitle = `-- Messages from ${messageAuthor} (id: ${message.author.id}, alias: ${messageAuthorNickname}) on ${todayFullDate}:`;
     
-    if (message instanceof Message) {
-        const logPath = path.join(__dirname, '.', 'logs', 'usersMessages', `${messageAuthor}`, `${messageAuthor}_${todayFullDate}.log`);
-        const logMessage = `(${todayTime}) on #${messageChannel} => ${messageAuthorNickname}: ${message.content}`;
-        saveMessageLog(logPath, logMessage, fileTitle);
+    const logPath = path.join(__dirname, '.', 'logs', 'usersMessages', `${messageAuthor}`, `${messageAuthor}_${todayFullDate}.log`);
+    const logMessage = `(${todayTime}) on #${messageChannel} => ${messageAuthorNickname}: "{${message.content}}"`;
+
+    if (!(global_logs)) {
+        console.log('Global logs are disabled, the message will not be logged.');
+        return;
     }
+
+    if (channelName.includes(secret_string)) {
+        console.log('This is a secret channel, the message will not be logged.');
+        return;
+    }
+
+    saveMessageLog(logPath, logMessage, fileTitle);
 };
 
 module.exports = processAnyMessage;

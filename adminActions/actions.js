@@ -1,43 +1,4 @@
-
-const fs = require('fs');
-const path = require('path');
-const { Message } = require('discord.js');
-
-const findLogFile = (username, date) => {
-    const logsDirectory = path.join(__dirname, '.', 'logs', 'usersMessages', `${username}`);
-    return new Promise((resolve, reject) => {
-    
-        fs.readdir(logsDirectory, (err, files) => {
-        if (err) {
-            reject(err);
-            return;
-        }
-
-        // Find the exact file that matches the actual date
-        const foundFile = files.find(file => file === `${username}_${date}.log`);
-        console.log('Found file:', foundFile);
-        const fullPath = path.join(logsDirectory, foundFile);
-
-
-    
-        if (foundFile) {
-            resolve(fullPath); // Resolve the promise with the full path of the found file
-        } else {
-            console.log(`No log file found for ${username}_${date}.log`);
-            const filenamePattern = `${username}_*.log`; // Using * as a wildcard for any date
-            // Find the first matching file
-            const foundFile = files.find(file => file.startsWith(filenamePattern));
-            if (foundFile) {
-                const fullPath = path.join(logsDirectory, foundFile);
-                resolve(fullPath); // Resolve the promise with the full path of the found file
-            } else {
-                reject(new Error(`No log file found for ${username} on ${date}`)); // Reject if no matching file is found
-            }
-        }});
-    });
-    };
-
-const retrieveUserLogs = async (message, username) => {
+const enableLogs = async (message, username) => {
 
     if (!(message instanceof Message)){
         console.error('Message is not an instance of Message class');
@@ -77,4 +38,4 @@ const retrieveUserLogs = async (message, username) => {
     }
 };
 
-module.exports = retrieveUserLogs;
+module.exports = enableLogs;

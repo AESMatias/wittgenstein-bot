@@ -113,7 +113,7 @@ client.on(Events.MessageCreate, async (message) => {
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses = [];
     
-    processAnyMessage(message);
+    await processAnyMessage(message);
 
     try {
         // Commands:
