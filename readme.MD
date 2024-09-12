@@ -22,7 +22,7 @@ This repository contains the code for the Wittgenstein AI BOT and all you need i
 
 Create a `.env` file from the sample provided and populate it with your API keys:
 
-```bash
+
 cp .env.sample .env
 sudo nano .env
 ```
@@ -35,13 +35,45 @@ or nohup!
 
 
 ### 2. Running with PM2 🛠️
-Start the Application
+
 Use PM2 to start the application using the ecosystem configuration file located in the config directory:
 
-In the root repository folder, just start the pm2 instance by using:
+- Install [PM2](https://pm2.keymetrics.io/) in your server/system
+
+Then, in the root repository folder, just start the pm2 instance by using:
 
 ``` bash
 pm2 start config/ecosystem.config.js
 ```
+If you need to restart or close the PM2 instance, just follow the commands on the official PM2 website
+[PM2](https://pm2.keymetrics.io/). 
+
+Nevertheless, the basic commands are as follow:
+- pm2 list
+- pm2 status
+- pm2 stop
+- pm2 restart
+- pm2 delete
+- pm2 kill
+
+### 2.1 If you want to, you can use nohup instead:
+If you leading to use nohup in your Linux system, then you can just run the bot by using the following command in the repository directory:
+
+```bash
+nohup node index.js > output.log 2>&1 &
+```
+
+Again, if you need to close the background process, you will need to check current NodeJS running process:
+
+```bash
+ps aux | grep node
+```
+
+Then, check the second column, the PID numeric value, and kill the process:
+
+```bash
+kill -9 PID
+```
+
 
 # That's it, your bot is ready to go! 🚀 

@@ -1,4 +1,7 @@
 require('dotenv').config();
+// import processAnyMessage from './processAnyMessage.js';
+const processAnyMessage  = require('./processAnyMessage.js');
+const retrieveUserLogs = require('./retrieveUserLogs.js');
 const { Client, Events, EmbedBuilder } = require('discord.js');
 const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
 const channelIdGeneral = '1198741772029923348';
@@ -16,7 +19,7 @@ client.on(Events.ClientReady, async () => {
 });
 
 
-var arrayOfUsers = [];
+let arrayOfUsers = [];
 const adminIds = ['1048125669873295391']
 
 //start a timeout to clean all the queries of the users
@@ -146,13 +149,17 @@ const processUserCounter = (userId) => {
 client.on(Events.MessageCreate, async (message) => {
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses = [];
+    
+    processAnyMessage(message);
 
     try {
         // Commands:
         if (message.content.startsWith('!')) {
-            const messageCommand = message.content.slice(1).toLowerCase();
+            const messageCommand = message.content.slice(1);
             console.log('messageCommand: ', messageCommand)
             const commandSplitted = messageCommand.split(' ');
+
+            // console.log(' username ', commandSplitted[1], 'type of data>', typeof commandSplitted[1]);
 
             if (commandSplitted[0] === 'image') {
                 message.channel.send(`<@${message.author.id}>: Sorry, this option is not available at the moment. Try again soon.`);
@@ -210,7 +217,7 @@ client.on(Events.MessageCreate, async (message) => {
                 message.channel.send(`<@${message.author.id}>!`);
                 const embed = new EmbedBuilder()
                     .setTitle('WittgensteinBOT Manual')
-                    .setDescription(`- !query <question>: Ask a question to the bot.\n
+                    .setDescription(`\n- !query <question>: Ask a question to the bot.\n
                     - !image <@user>: Show the image of the mentioned user.\n
                     - !show <prompt>: Generate an image based on the prompt.\n`)
                     .setFooter({
@@ -220,6 +227,26 @@ client.on(Events.MessageCreate, async (message) => {
                     .setTimestamp();
                 message.channel.send({ embeds: [embed] });
                 return
+            }
+            else if (commandSplitted[0] === 'logs') {
+                if (!commandSplitted[1]) {
+                    message.channel.send(`<@${message.author.id}> You need to specify the username of the user you want to see the logs. Try !logs <username>`);
+                    return;
+                }
+
+
+                (async () => {
+                    const logFile = await retrieveUserLogs(message, commandSplitted[1]);
+                
+                    if (!logFile) {
+                      message.channel.send(`<@${message.author.id}> Sorry, there was an error retrieving the logs.`);
+                      return;
+                    }
+                
+                    // Envía el archivo al canal de Discord
+                    message.channel.send(`Here is the log file for ${commandSplitted[1]}`);
+                    message.channel.send({ files: [logFile] });
+                  })();
             }
 
 
