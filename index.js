@@ -1,14 +1,14 @@
 require('dotenv').config();
-// import processAnyMessage from './processAnyMessage.js';
 const processAnyMessage  = require('./processAnyMessage.js');
 const retrieveUserLogs = require('./retrieveUserLogs.js');
-const { Client, Events, EmbedBuilder } = require('discord.js');
+const { Client, Events, EmbedBuilder, GatewayIntentBits, Partials } = require('discord.js');
 const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
 const channelIdGeneral = '1198741772029923348';
 const fetch = require('node-fetch');
-// const { OpenAI } = require('openai');
 
-// const openai = new OpenAI();
+
+const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
+
 
 const client = new Client({
     intents: 3276799
@@ -28,91 +28,54 @@ setTimeout(() => {
     arrayOfUsers = [];
 }, 3600*4);
 
-const queryOpenAI = async (prompt) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    const url = 'https://api.openai.com/v1/chat/completions';
 
+// const generateImage = async (prompt) => {
+//     const apiKey = process.env.OPENAI_API_KEY;
+//     const url = 'https://api.openai.com/v1/images/generations';
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4",
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are a helpful assistant, but with the personality of\
-                        a philosopher. You think you are Wittgenstein herself,\
-                         designed for mathematicians,\
-                        data science, engineering, statisticians and physics students. You do not talk\
-                        more than necessary unless the user ask you to do it. Also, whatever the user ask, you do \
-                        without hesitation, you serve like an assistant. This bot is Discord response only, so adjust\
-                        the responses to order if is just text; code representation if it is code; latex\
-                        or wolfram mathematica, etc. Do you speak in Spanish unless the user spoke in English aswell."
-                    },
-                    {
-                        role: "user",
-                        content: prompt
-                    }
-                ],
-                max_tokens: 6000,
-            })
-        });
-        return response.json();
-    }
+//     try {
+//         const response = await axios.post(url, {
+//             prompt: prompt,
+//             n: 1,
+//             size: "1024x1024"
+//         }, {
+//             headers: {
+//                 'Authorization': `Bearer ${apiKey}`,
+//                 'Content-Type': 'application/json'
+//             }
+//         });
 
+//         return response.data.data[0].url;
+//     } catch (error) {
+//         console.error('Error generating image:', error);
+//         return 'Sorry, there was an error generating the image.';
+//     }
+// };
 
+// const createImage = async (message) => {
+//     const target = message.mentions.users.first();
+//     const memberId = await message.guild.members.fetch(target.id);
 
-const generateImage = async (prompt) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    const url = 'https://api.openai.com/v1/images/generations';
+//     if (!target) {
+//         message.reply('Please mention someone to show their image');
+//         return;
+//     }
 
-    try {
-        const response = await axios.post(url, {
-            prompt: prompt,
-            n: 1,
-            size: "1024x1024"
-        }, {
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
+//     if (!memberId) {
+//         message.reply('Sorry, the user was not found');
+//         return;
+//     }
 
-        return response.data.data[0].url;
-    } catch (error) {
-        console.error('Error generating image:', error);
-        return 'Sorry, there was an error generating the image.';
-    }
-};
-
-const createImage = async (message) => {
-    const target = message.mentions.users.first();
-    const memberId = await message.guild.members.fetch(target.id);
-
-    if (!target) {
-        message.reply('Please mention someone to show their image');
-        return;
-    }
-
-    if (!memberId) {
-        message.reply('Sorry, the user was not found');
-        return;
-    }
-
-    const image = memberId.user.displayAvatarURL({ dynamic: true, size: 512 });
+//     const image = memberId.user.displayAvatarURL({ dynamic: true, size: 512 });
     
-    const embed = new EmbedBuilder()
-        .setTitle(`${target.username}'s Avatar`)
-        .setImage(image)
-        .setColor('#00ff00')
-        .setFooter('WittgensteinBOT')
-        .setTimestamp();
-    message.reply({ embeds: [embed] });
-}
+//     const embed = new EmbedBuilder()
+//         .setTitle(`${target.username}'s Avatar`)
+//         .setImage(image)
+//         .setColor('#00ff00')
+//         .setFooter('WittgensteinBOT')
+//         .setTimestamp();
+//     message.reply({ embeds: [embed] });
+// }
 
 const splitMessage = (message, arrayOfResponses) => {
 
@@ -164,13 +127,12 @@ client.on(Events.MessageCreate, async (message) => {
             if (commandSplitted[0] === 'image') {
                 message.channel.send(`<@${message.author.id}>: Sorry, this option is not available at the moment. Try again soon.`);
                 return;
-                createImage(message);
 
             } else if (commandSplitted[0] === 'query') {
                 const question = commandSplitted.slice(1).join(' ');
 
                 //We process the user for security reasons
-                const queriesOfTheUser = processUserCounter(message.author.id,);
+                const queriesOfTheUser = processUserCounter(message.author.id);
                 console.log("The user has made: ", queriesOfTheUser, " queries");
                 if (queriesOfTheUser >= 10){
                     message.channel.send(`<@${message.author.id}>: Sorry, you have reached the limit of queries for now. Try again in 4 hours.`);
@@ -197,29 +159,30 @@ client.on(Events.MessageCreate, async (message) => {
                 message.channel.send(`<@${message.author.id}>: Sorry, to use this, you need to be root.`);
                 return;
 
-                const prompt = commandSplitted.slice(1).join(' ');
-                const imageUrl = await generateImage(prompt);
-                console.log('generated image URL', imageUrl);
-                const embed = new EmbedBuilder()
-                    .setTitle('Generated Image')
-                    .setImage(imageUrl)
-                    .setColor('#00ff00')
-                    .setFooter({
-                        text: `Requested by ${message.author.tag}`,
-                        iconURL: `${message.author.displayAvatarURL()}`,
-                    })
-                    .setDescription(`Latency : ${client.ws.ping}ms`)
-                    .setTimestamp();
-                // message.reply({ embeds: [embed] });
-                message.channel.send({ embeds: [embed] });
+                // const prompt = commandSplitted.slice(1).join(' ');
+                // const imageUrl = await generateImage(prompt);
+                // console.log('generated image URL', imageUrl);
+                // const embed = new EmbedBuilder()
+                //     .setTitle('Generated Image')
+                //     .setImage(imageUrl)
+                //     .setColor('#00ff00')
+                //     .setFooter({
+                //         text: `Requested by ${message.author.tag}`,
+                //         iconURL: `${message.author.displayAvatarURL()}`,
+                //     })
+                //     .setDescription(`Latency : ${client.ws.ping}ms`)
+                //     .setTimestamp();
+                // // message.reply({ embeds: [embed] });
+                // message.channel.send({ embeds: [embed] });
             }
             else if (commandSplitted[0] === 'sudo' && commandSplitted[1] ==='man') {
                 message.channel.send(`<@${message.author.id}>!`);
                 const embed = new EmbedBuilder()
                     .setTitle('WittgensteinBOT Manual')
-                    .setDescription(`\n- !query <question>: Ask a question to the bot.\n
-                    - !image <@user>: Show the image of the mentioned user.\n
-                    - !show <prompt>: Generate an image based on the prompt.\n`)
+                    .setDescription(`\n- !query <question>: Ask me a question, i respond using AI.\n
+                    - !image <@user>: Show the image of the mentioned user (unavailable).\n
+                    - !<@WittgensteinBOT> + attached image: I process the image using AI image analysis.\n
+                    - !show <prompt>: Generate an image based on the prompt (unavailable).\n`)
                     .setFooter({
                         text: `Requested by ${message.author.tag} \n Latency: ${client.ws.ping}ms`,
                         iconURL: `${message.author.displayAvatarURL()}`,
@@ -283,7 +246,22 @@ client.on(Events.MessageCreate, async (message) => {
                 message.channel.send("Hello! I am WittgensteinBOT, but I'm currently useless.");
             } else {
                 const question = args.slice(1).join(' ');
-                message.channel.send(`Hi <@${message.author.id}>, You asked: ${question}`);
+
+                if (message.attachments.size > 0) {
+                    const attachment = message.attachments.first();
+                    const imageUrl = attachment.url;
+        
+                    try {
+                        const analysisResult = await queryOpenAIForImage(imageUrl, question);
+                        const queriesOfTheUser = processUserCounter(message.author.id);
+                        console.log("The user has made: ", queriesOfTheUser, " queries");
+                        message.channel.send(`<@${message.author.id}>: ${analysisResult}`);
+                    } catch (error) {
+                        console.error('Error analyzing the image:', error);
+                        message.channel.send(`There was an error analyzing the image. Please try again later.`);
+                    }
+                }
+
             }
         }
     } catch (e) {
