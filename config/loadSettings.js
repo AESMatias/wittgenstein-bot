@@ -2,50 +2,48 @@ const fs = require('fs');
 const path = require('path');
 
 const JsonConfigPath = path.join(__dirname, 'generalConfig.json');
-let cachedConfig = null;
 
-getFromConfig = (...keys) => {
+
+let configObject = {
+  cachedConfig: null,
+};
+
+getFromConfig = async (...keys) => {
 
   if (keys.length === 0) {
     console.error('No keys provided to getFromConfig');
     return null;
   }
   
-  if (!cachedConfig) {
-
-    console.log(`**The generalConfig.json is not cached at all, reading from file**`);
-
-    const rawData = fs.readFileSync(JsonConfigPath, 'utf8', (err, data) => {
-      if (err) {
-        console.error('Error reading the file:', err);
-        return null;
-      }
-    });
-
-    cachedConfig = JSON.parse(rawData);
+  if (!configObject.cachedConfig) {
+    try {
+      const rawData = await fs.promises.readFile(JsonConfigPath, 'utf8');
+      configObject.cachedConfig = JSON.parse(rawData);
+      console.log(`**The generalConfig.json was not cached, reading from file**\nThe cachedConfig is: ${JSON.stringify(configObject.cachedConfig)}`);
+    } catch (err) {
+      console.error('Error reading or parsing the configuration file:', err);
+      return null; 
+    }
   }
 
-
-  const uncachedKeys = keys.filter(
-    key => {!(cachedConfig.hasOwnProperty(key))
-    // console.log(`The key ${key} is not cached, reading from file...`)
-  });
+  const uncachedKeys = keys.filter(key => !(key in configObject.cachedConfig));
   
+  //The if statement below almost never runs, but it's here just in case
   if (uncachedKeys.length > 0) {
     console.log(`The config for ${uncachedKeys} is not cached, reading from file...`);
-    const rawData = fs.readFileSync(JsonConfigPath, 'utf8', (err, data) => {
+    const rawData = await fs.promises.readFile(JsonConfigPath, 'utf8', (err, data) => {
       if (err) {
         console.error('Error reading the file:', err);
         return null;
       }
     });
-    cachedConfig = JSON.parse(rawData);
+    configObject.cachedConfig = JSON.parse(rawData);
   }
 
   let results = {};
 
   keys.forEach(key => {
-    results[key] = cachedConfig[key];
+    results[key] = configObject.cachedConfig[key];
   });
 
   return results;
@@ -53,5 +51,6 @@ getFromConfig = (...keys) => {
 }
 
 module.exports = {
-  getFromConfig
+  getFromConfig,
+  configObject,
 }

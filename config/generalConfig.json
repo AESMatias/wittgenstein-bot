@@ -1,4 +1,4 @@
 {
-    "secret_string": "secret",
-    "global_logs": true
+  "secret_string": "secret",
+  "global_logs": false
 }

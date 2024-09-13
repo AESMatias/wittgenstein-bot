@@ -3,9 +3,10 @@ const processAnyMessage  = require('./processAnyMessage.js');
 const retrieveUserLogs = require('./retrieveUserLogs.js');
 const { Client, Events, EmbedBuilder, GatewayIntentBits, Partials } = require('discord.js');
 const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
-const channelIdGeneral = '1198741772029923348';
 const fetch = require('node-fetch');
-
+const {channelIdGeneral, adminIds} = require('./config/stableSettings.js');
+const {modifyLogs} = require('./adminActions/actions.js');
+const {getFromConfig} = require('./config/loadSettings.js');
 
 const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
 
@@ -20,8 +21,6 @@ client.on(Events.ClientReady, async () => {
 
 
 let arrayOfUsers = [];
-const adminIds = ['1048125669873295391']
-
 //start a timeout to clean all the queries of the users
 // TODO: We need to process this and save in a database or logs, NOT HERE!
 setTimeout(() => {
@@ -174,6 +173,33 @@ client.on(Events.MessageCreate, async (message) => {
                 //     .setTimestamp();
                 // // message.reply({ embeds: [embed] });
                 // message.channel.send({ embeds: [embed] });
+            
+            } 
+            else if (commandSplitted[0] === 'logs' && (commandSplitted[1] === 'enable' || commandSplitted[1] === 'disable')) {
+                if (!(adminIds.includes(message.author.id))){
+                message.channel.send(`<@${message.author.id}>: Sorry, to use this, you need to be root.`);
+                return;
+                }
+                
+                let changeTo = commandSplitted[1] === 'enable' ? true : false;
+
+                try{
+                let newLogStatus = await modifyLogs(message, changeTo=changeTo);
+
+
+                if (newLogStatus === null) {
+                    return
+                };
+
+                if (newLogStatus){
+                    message.channel.send(`<@${message.author.id}>: The logs are now globally enabled.`);
+                } else {
+                    message.channel.send(`<@${message.author.id}>: The logs are now globally disabled.`);
+                }
+            } catch (error) {
+                console.error('Error modifying the logs:', error);
+                message.channel.send(`There was an error modifying the logs. Please try again later.`);
+            }
             }
             else if (commandSplitted[0] === 'sudo' && commandSplitted[1] ==='man') {
                 message.channel.send(`<@${message.author.id}>!`);
@@ -193,7 +219,24 @@ client.on(Events.MessageCreate, async (message) => {
             }
             else if (commandSplitted[0] === 'logs') {
                 if (!commandSplitted[1]) {
-                    message.channel.send(`<@${message.author.id}> You need to specify the username of the user you want to see the logs. Try !logs <username>`);
+                    try{
+
+                        let {global_logs} = await getFromConfig('global_logs');
+                        global_logs = global_logs ? 'enabled' : 'disabled';
+
+                        if (global_logs === null) {
+                            return
+                        };
+
+                        message.channel.send(`<@${message.author.id}> You need to specify the username of the user you want to see the logs. Try !logs <username>\
+                            \nLog status: ${global_logs} If you want to enable or disable the logs globally, try !logs enable or !logs disable.`);
+        
+
+        
+                    } catch (error) {
+                        console.error('Error modifying the logs:', error);
+                        message.channel.send(`There was an error modifying the logs. Please try again later.`);
+                    }
                     return;
                 }
 
@@ -211,18 +254,14 @@ client.on(Events.MessageCreate, async (message) => {
                     message.channel.send({ files: [logFile] });
                   })();
             }
-
-
-
         }
 
         // Message logging
         if (!message.content.includes(botIdMention)) {
-            console.log(`${message.author.username}: ${message.content},\t
-                In the channel: ${message.channel.name},\t
-                At ${message.createdAt}`)
+            console.log(`\n${message.author.username}: '{${message.content}}'
+                In the channel: ${message.channel.name}, At ${message.createdAt}\n`);
             return;
-        }
+            }
 
         // Message handling
         else {
@@ -276,7 +315,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
     channel.send(`Welcome to the server, <@${member.user.id}>!\n
         I'm an AI powered BOT, You can ask me anything you want, I'm here to help you.
         Send me images, code, text, or anything you want to know and I will try to help you.
-        To see the list of commands, type !sudo man`);
+        To see the list of commands, type:\n!sudo man`);
 });
 
 // TODO: Remove the token before pushing to GitHub

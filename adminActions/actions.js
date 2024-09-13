@@ -1,41 +1,48 @@
-const enableLogs = async (message, username) => {
+const fs = require('fs');
+const path = require('path');
+const { Message } = require('discord.js');
+const JsonConfigPath = path.join(__dirname, '../config/generalConfig.json');
+const {configObject} = require(path.join('../config/loadSettings'));
+
+let {cachedConfig} = configObject;
+
+const setNewGlobalLogsStatus = async (newStatus) => {
+    if (typeof newStatus !== 'boolean') {
+      return console.error('The new status for "global_logs" must be of type boolean');
+    }
+
+    if (!cachedConfig) {
+      const rawData = fs.readFileSync(JsonConfigPath, 'utf8');
+      cachedConfig = JSON.parse(rawData);
+    }
+
+    configObject.cachedConfig.global_logs = newStatus;
+  
+    await fs.promises.writeFile(JsonConfigPath, JSON.stringify(configObject.cachedConfig, null, 2));
+    console.log(`**TAASDASDSADhe "global_logs" status has been updated to ${newStatus}**`);
+    console.log('RETORNANDO', configObject.cachedConfig.global_logs);
+    return configObject.cachedConfig.global_logs;
+  
+  
+};
+
+const modifyLogs = async (message, changeTo ,username='Admin') => {
 
     if (!(message instanceof Message)){
         console.error('Message is not an instance of Message class');
         return;
     }
 
-    const channelId = message.channel.id;
-    const channelName = message.channel.name;
-    const channelType = message.channel.type;
-    const messageContent = message.content;
-    const messageAuthor = message.author.username;
-    const messageAuthorId = message.author.id;
-    const isBot = message.author.bot;
-    const messageTimestamp = message.createdTimestamp;
-    const messageAuthorNickname = message.member.nickname;
-
-    const todayTimestamp = new Date();
-    const todayDate = todayTimestamp.getDate();
-    const todayMonth = todayTimestamp.getMonth();
-    const todayDateAndMonth = `${todayDate}-${todayMonth}`;
-    const todayFullDate = `${todayDate}-${todayMonth}-${todayTimestamp.getFullYear()}`;
-    const todayTime = todayTimestamp.toLocaleTimeString();
-    const fileTitle = `-- Messages from ${messageAuthor} (id: ${message.author.id}) on ${todayFullDate}:`;
-    
-    if (message instanceof Message) {
-        // const logPath = path.join(__dirname, '.', 'logs', 'usersMessages', `${messageAuthor}`, `${messageAuthor}_${todayFullDate}.log`);
-        // const logMessage = `(${todayTime}) => ${message.author.username}: ${message.content}`;
-
-        try {
-            const filePath = await findLogFile(username, todayFullDate);
-            return filePath; // Devuelve la ruta del archivo de log encontrado
-          } catch (err) {
-            console.error('Error finding log file:', err.message);
-            return null;
-          }
-
-    }
+    try {
+        let newLogStatus = await setNewGlobalLogsStatus(changeTo);
+        console.log('RETORNAAAAAAAAAAAAA', newLogStatus);
+        return newLogStatus;
+        } catch (err) {
+        console.error('Error finding log file:', err.message);
+        return null;
+        }
 };
 
-module.exports = enableLogs;
+module.exports = {
+    modifyLogs,
+}

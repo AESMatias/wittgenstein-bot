@@ -45,7 +45,7 @@ const saveMessageLog = (logPath, logMessage, title) => {
 
 const processAnyMessage = async (message) => {
 
-    const {secret_string, global_logs} = await getFromConfig('secret_string', 'global_logs');
+    let {secret_string, global_logs} = await getFromConfig('secret_string', 'global_logs');
 
     if (!(message instanceof Message)){
         console.error('Message is not an instance of Message class from discord.js');
