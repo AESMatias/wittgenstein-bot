@@ -1,9 +1,9 @@
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { Message } = require('discord.js');
 // const { secret_string, global_logs } = require('./config/generalConfig');
-const { getFromConfig } = require('./config/loadSettings');
+const { getFromConfig } = require(path.join(__dirname, 'config', 'loadSettings.js'));
 
 const saveMessageLog = (logPath, logMessage, title) => {
     fs.readFile(logPath, 'utf8', (err, data) => {
@@ -86,4 +86,4 @@ const processAnyMessage = async (message) => {
     saveMessageLog(logPath, logMessage, fileTitle);
 };
 
-module.exports = processAnyMessage;
+module.exports = {processAnyMessage};

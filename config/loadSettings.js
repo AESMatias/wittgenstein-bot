@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const JsonConfigPath = path.join(__dirname, 'generalConfig.json');
 
@@ -8,7 +8,7 @@ let configObject = {
   cachedConfig: null,
 };
 
-getFromConfig = async (...keys) => {
+const getFromConfig = async (...keys) => {
 
   if (keys.length === 0) {
     console.error('No keys provided to getFromConfig');

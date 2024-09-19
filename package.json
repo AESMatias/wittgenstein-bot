@@ -1,9 +1,12 @@
 {
   "name": "wittgenstein-bot",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.0.0",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node ."
   },
   "keywords": [],
   "author": "AESMatias",
@@ -11,9 +14,18 @@
   "description": "A Discord AI BOT.",
   "dependencies": {
     "axios": "^1.7.5",
+    "compute-cosine-similarity": "^1.1.0",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
+    "ml-matrix": "^6.11.1",
+    "natural": "^8.0.1",
     "openai": "^4.56.0",
     "pm2": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/natural": "^5.1.5",
+    "@types/node": "^22.5.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
   }
 }

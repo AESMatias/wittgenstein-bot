@@ -1,29 +1,31 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const { Message } = require('discord.js');
-const JsonConfigPath = path.join(__dirname, '../config/generalConfig.json');
-const {configObject} = require(path.join('../config/loadSettings'));
+// const { path } = require('node:path');
+// const JsonConfigPath = path.join(__dirname, '../config/generalConfig.json');
+const JsonConfigPath = path.join(__dirname, '..', 'config', 'generalConfig.json');
+const {configObject} = require(path.join(__dirname, '..', 'config', 'loadSettings.js'));
 
 let {cachedConfig} = configObject;
 
 const setNewGlobalLogsStatus = async (newStatus) => {
+
     if (typeof newStatus !== 'boolean') {
       return console.error('The new status for "global_logs" must be of type boolean');
     }
 
     if (!cachedConfig) {
-      const rawData = fs.readFileSync(JsonConfigPath, 'utf8');
+      console.log('NMO CAHCEEEEEEEEE')
+      const rawData = fs.readFileSync(JsonConfigPath, 'utf8'); // Change this to Async
       cachedConfig = JSON.parse(rawData);
+      console.log(`**The generalConfig.json was not cached, reading from file**\nThe cachedConfig is: ${JSON.stringify(cachedConfig)}`);
     }
 
     configObject.cachedConfig.global_logs = newStatus;
   
     await fs.promises.writeFile(JsonConfigPath, JSON.stringify(configObject.cachedConfig, null, 2));
-    console.log(`**TAASDASDSADhe "global_logs" status has been updated to ${newStatus}**`);
-    console.log('RETORNANDO', configObject.cachedConfig.global_logs);
+    console.log(`** "global_logs" status has been updated to ${newStatus}**`);
     return configObject.cachedConfig.global_logs;
-  
-  
 };
 
 const modifyLogs = async (message, changeTo ,username='Admin') => {
@@ -35,12 +37,12 @@ const modifyLogs = async (message, changeTo ,username='Admin') => {
 
     try {
         let newLogStatus = await setNewGlobalLogsStatus(changeTo);
-        console.log('RETORNAAAAAAAAAAAAA', newLogStatus);
         return newLogStatus;
-        } catch (err) {
-        console.error('Error finding log file:', err.message);
-        return null;
-        }
+        } 
+    catch (err) {
+      console.error('Error finding log file:', err.message);
+      return null;
+    }
 };
 
 module.exports = {
