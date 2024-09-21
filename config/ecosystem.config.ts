@@ -8,7 +8,7 @@ module.exports = {
       error: './logs/WittgensteinBOT-err.log',
       log: './logs/WittgensteinBOT-combined.log',
       time: true,
-      watch: true,
+      // watch: true,
       ignore_watch: ['node_modules', 'logs'],
     },
   ],

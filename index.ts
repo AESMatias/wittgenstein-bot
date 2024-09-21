@@ -3,7 +3,9 @@ const path = require('path');
 const { processAnyMessage }  = require(path.join(__dirname,'processAnyMessage.js'));
 const { processTheInput } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
 const retrieveUserLogs = require('./retrieveUserLogs.js');
-const { Client, Events, EmbedBuilder, GatewayIntentBits, Partials, Message} = require('discord.js');
+const { Client, Events, EmbedBuilder, GatewayIntentBits, Partials, Message,
+    ApplicationCommand, ApplicationCommandOptionType, ApplicationCommandType, ApplicationCommandPermissionType, ApplicationCommandPermission, ApplicationCommandPermissionOverwrite, ApplicationCommandPermissionOverwriteType
+} = require('discord.js');
 const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
 // const fetch = require('node-fetch');
 const { channelIdGeneral, adminIds } = require(path.join(__dirname, 'config', 'stableSettings'));
@@ -11,6 +13,7 @@ const { modifyLogs } = require(path.join(__dirname, 'adminActions', 'actions'));
 const { getFromConfig } = require(path.join(__dirname, 'config', 'loadSettings'));
 const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
 const { possibleCommands } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
+const Discord = require('discord.js');
 
 // const { APIMessage } = require('discord-api-types/v10');
 
@@ -25,8 +28,47 @@ const client = new Client({
     intents: 3276799
 });
 
+const availableCommands = [
+    {
+        name: 'logs',
+        description: 'Show the logs status and info.',
+        usage: '/logs'
+    },
+    {
+        name: 'logs_user',
+        description: 'Show the logs of the user.',
+        usage: '/logs <username>'
+    },
+    {
+        name: 'logs_enable',
+        description: 'Enable the logs globally.',
+        usage: '/logs enable'
+    },
+    {
+        name: 'logs_disable',
+        description: 'Disable the logs globally.',
+        usage: '/logs disable'
+    },
+    {
+        name: 'sudo_man',
+        description: 'Show the manual of the bot.',
+        usage: '/sudo man'
+    },
+    {
+        name: 'query',
+        description: 'Ask me a question, I respond using AI.',
+        usage: '/query <question>'
+    }
+];
+
+
 client.on(Events.ClientReady, async () => {
     console.log(`The bot is ready: ${client.user.username}`);
+
+    // TODO: Uncomment this to register the commands the first time
+    // client.application.commands.set(availableCommands)
+    // .then((data:any) => console.log('Registered commands:', data))
+    // .catch(console.error);
 });
 
 
@@ -126,14 +168,14 @@ const processUserCounter = (userId:string) => {
 }
 
 client.on(Events.MessageCreate, async (message: any) => {
-
+    
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses: Array<string> = [];
     
     await processAnyMessage(message);
 
     try {
-        const isCommand = message.content.startsWith('!');
+        const isCommand = message.content.startsWith('/');
         let messageContent = isCommand ? message.content.slice(1) : message.content;
 
         // const isValidQuery = isCommand && !message.author.bot && messageContent.length > 1;
@@ -148,7 +190,8 @@ client.on(Events.MessageCreate, async (message: any) => {
         // Commands:
         const messageCommand = messageContent.slice(1);
         const commandSplitted = messageCommand.split(' ');
-        const requestedCommand = commandSplitted[0];
+        let requestedCommand = commandSplitted[0];
+        requestedCommand.toLowerCase();
 
         // console.log('messageCommand: ', messageCommand)
         // console.log(' username ', commandSplitted[1], 'type of data>', typeof commandSplitted[1]);
