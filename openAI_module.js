@@ -28,43 +28,6 @@ const queryOpenAIForImage = async (imageUrl, prompt) => {
     return response.choices[0].message.content;
 };
 
-
-
-
-
-
-
-
-
-
-
-//   // Primera consulta del usuario
-//   messages.push({ role: "user", content: "What is the capital of France?" });
-
-//   let response = await client.chat.completions.create({
-//     messages: messages,
-//     model: modelName
-//   });
-
-//   console.log("Assistant: ", response.choices[0].message.content);
-  
-//   // Guardar la respuesta del asistente
-//   messages.push({ role: "assistant", content: response.choices[0].message.content });
-
-//   // Consulta adicional del usuario
-//   messages.push({ role: "user", content: "What about Spain?" });
-
-//   response = await client.chat.completions.create({
-//     messages: messages.slice(-2),
-//     model: modelName
-//   });
-
-//   console.log("Assistant: ", response.choices[0].message.content);
-  
-//   // Guardar la respuesta del asistente
-//   messages.push({ role: "assistant", content: response.choices[0].message.content });
-
-
 const queryOpenAI = async (prompt, messages) => {
     const apiKey = process.env.OPENAI_API_KEY;
     const endpoint = 'https://api.openai.com/v1/chat/completions';
@@ -116,38 +79,21 @@ const queryOpenAI = async (prompt, messages) => {
             console.log("Last four messages: ", lastFourMessages.length/2);
         }
     
-
-        // const response = await fetch(url, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Authorization': `Bearer ${apiKey}`
-        //     },
-        //     body: JSON.stringify({
-        //         model: modelName,
-        //         messages: [
-        //             {
-        //                 role: "system",
-        //                 content: "You are a helpful assistant, but with the personality of\
-        //                 a philosopher. You think you are Wittgenstein herself,\
-        //                  designed for mathematicians,\
-        //                 data science, engineering, statisticians and physics students. You do not talk\
-        //                 more than necessary unless the user ask you to do it. Also, whatever the user ask, you do \
-        //                 without hesitation, you serve like an assistant. This bot is Discord response only, so adjust\
-        //                 the responses to order if is just text; code representation if it is code; latex\
-        //                 or wolfram mathematica, etc. Do you speak in Spanish unless the user spoke in English aswell."
-        //             },
-        //             {
-        //                 role: "user",
-        //                 content: prompt
-        //             }
-        //         ],
-        //         max_tokens: 2000,
-        //     })
-        // });
-
             response = await client.chat.completions.create({
-            messages,
+            messages: [
+                    {
+                        role: "system",
+                        content: "You are a helpful assistant, but with the personality of\
+                        a philosopher. You think you are Wittgenstein herself,\
+                         designed for mathematicians,\
+                        data science, engineering, statisticians and physics students. You do not talk\
+                        more than necessary unless the user ask you to do it. Also, whatever the user ask, you do \
+                        without hesitation, you serve like an assistant. This bot is Discord response only, so adjust\
+                        the responses to order if is just text; code representation if it is code; latex\
+                        or wolfram mathematica, etc. Do you speak in Spanish unless the user spoke in English aswell."
+                    },
+                    ...messages
+            ],
             model: modelName,
             max_tokens: 2000
         });
