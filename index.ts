@@ -10,7 +10,7 @@ const { Client, Events, EmbedBuilder} = require('discord.js');
 const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
 // const fetch = require('node-fetch');
 const { channelIdGeneral, adminIds } = require(path.join(__dirname, 'config', 'stableSettings'));
-const { modifyLogs } = require(path.join(__dirname, 'adminActions', 'actions'));
+const { modifyLogs, updateTotalQueries } = require(path.join(__dirname, 'adminActions', 'actions'));
 const { getFromConfig } = require(path.join(__dirname, 'config', 'loadSettings'));
 const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
 const { possibleCommands } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
@@ -122,6 +122,7 @@ const processUserCounter = async (userId:string) => {
     // and before everything, we need to check the queries of users at the start of the bot
 
 }
+
 client.on(Events.MessageCreate, async (message: Message) => {
     
     const botIdMention = '@1248874590416011264'
@@ -148,7 +149,6 @@ client.on(Events.MessageCreate, async (message: Message) => {
 
         // console.log('messageCommand: ', messageCommand)
         // console.log(' username ', commandSplitted[1], 'type of data>', typeof commandSplitted[1]);
-
 
         // Message logging
         if (!message.content.includes(botIdMention)) {
@@ -226,13 +226,23 @@ client.on('interactionCreate', async (interaction: any) => {
             const queriesOfTheUser = await processUserCounter(userAuthor.id);
             console.log("The user has made: ", queriesOfTheUser, " queries");
 
-            if (queriesOfTheUser >= 10){
+            if (queriesOfTheUser >= 20){
                 interaction.followUp(`${userAuthor}: Sorry, you have reached the limit of queries for now. Try again in 4 hours.`);
                 return;
             }
 
-            if (totalQueriesToday >= 200){
-                interaction.followUp(`${userAuthor}: Sorry, the limit of queries for today has been reached. Try again tomorrow.`);
+            if (totalQueriesToday >= 300){
+                interaction.followUp(`${userAuthor}: Sorry, the limit of queries today has been reached. Contact the admin.`);
+                return;
+            }
+            
+            // This is another way of get something from the config file:
+            // let { total_queries } = await getFromConfig('total_queries');
+            // console.log('total_queries', total_queries);
+
+            const totalQueries = await updateTotalQueries()
+            if (totalQueries >= 2000){
+                interaction.followUp(`${userAuthor}: Sorry, the global limit of queries has been reached. Contact the admin.`);
                 return;
             }
 
@@ -377,7 +387,6 @@ client.on('interactionCreate', async (interaction: any) => {
             await interaction.deferReply();
 
             let { global_logs } = await getFromConfig('global_logs');
-            console.log('global_logs', global_logs);
             global_logs = global_logs ? 'enabled' : 'disabled';
 
             if (global_logs === null) {

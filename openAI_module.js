@@ -30,9 +30,9 @@ const queryOpenAIForImage = async (imageUrl, prompt) => {
 
 const queryOpenAI = async (prompt, messages) => {
     const apiKey = process.env.OPENAI_API_KEY;
-    const endpoint = 'https://api.openai.com/v1/chat/completions';
     const modelName = "gpt-4o-mini";
     const client = new OpenAI({apiKey});
+    let response = '';
 
         if (!messages) {
             messages = [
@@ -49,7 +49,6 @@ const queryOpenAI = async (prompt, messages) => {
             //If the messages are more than 4, then the last four messages are saved
             if (messages.length > 4){
                 messages = messages.slice(messages.length-4, messages.length);
-                console.log('recoradando mensajes');
             }
 
             for (let i=0; i<messages.length; i++){
@@ -76,7 +75,7 @@ const queryOpenAI = async (prompt, messages) => {
                 },
                 ...lastFourMessages
             ]
-            console.log("Last four messages: ", lastFourMessages.length/2);
+
         }
     
             response = await client.chat.completions.create({
@@ -97,6 +96,7 @@ const queryOpenAI = async (prompt, messages) => {
             model: modelName,
             max_tokens: 2000
         });
+
         return response;
     }
 

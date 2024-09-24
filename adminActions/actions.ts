@@ -15,8 +15,7 @@ const setNewGlobalLogsStatus = async (newStatus:boolean) => {
     }
 
     if (!cachedConfig) {
-      console.log('NMO CAHCEEEEEEEEE')
-      const rawData = fs.readFileSync(JsonConfigPath, 'utf8'); // Change this to Async
+      const rawData = fs.readFileSync(JsonConfigPath, 'utf8'); // TODO: Change this to Async
       cachedConfig = JSON.parse(rawData);
       console.log(`**The generalConfig.json was not cached, reading from file**\nThe cachedConfig is: ${JSON.stringify(cachedConfig)}`);
     }
@@ -45,6 +44,35 @@ const modifyLogs = async (changeTo:boolean) => {
     }
 };
 
+
+const incrementTotalQueries = async () => {
+
+  if (!cachedConfig) {
+    const rawData = fs.readFileSync(JsonConfigPath, 'utf8'); // TODO: Change this to Async
+    cachedConfig = JSON.parse(rawData);
+    console.log(`**The generalConfig.json was not cached, reading from file**\nThe cachedConfig is: ${JSON.stringify(cachedConfig)}`);
+  }
+
+  configObject.cachedConfig.total_queries += 1;
+
+  await fs.promises.writeFile(JsonConfigPath, JSON.stringify(configObject.cachedConfig, null, 2));
+  // console.log(`** "global_logs" status has been updated to ${newStatus}**`);
+  return configObject.cachedConfig.total_queries;
+};
+
+const updateTotalQueries = async () => {
+
+  try {
+      let newStatus = await incrementTotalQueries();
+      return newStatus;
+      } 
+  catch (err) {
+    console.error('Error finding log file:', err);
+    return null;
+  }
+};
+
 module.exports = {
     modifyLogs,
+    updateTotalQueries,
 }

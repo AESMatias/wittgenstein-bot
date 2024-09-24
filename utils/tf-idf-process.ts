@@ -88,10 +88,6 @@ const commandsInfo = {
     ceased, ceasing": "!logs disable",
 };
 
-// const commandsInfo = Object.assign({}, commandsInfoEnglish, commandsInfoSpanish);
-
-
-
 
 const commands = Object.keys(commandsInfo);
 

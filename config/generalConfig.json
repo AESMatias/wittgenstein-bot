@@ -1,4 +1,5 @@
 {
   "secret_string": "secret",
-  "global_logs": true
+  "global_logs": true,
+  "total_queries": 8
 }
