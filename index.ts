@@ -1,3 +1,5 @@
+import { Message } from "discord.js";
+
 require('dotenv').config();
 const path = require('path');
 const { processAnyMessage }  = require(path.join(__dirname,'processAnyMessage.js'));
@@ -54,7 +56,17 @@ client.on(Events.ClientReady, async () => {
     }
 });
 
+interface userQuery {
+    query: string;
+    response: string | null;
+}
 
+interface UserQueriesArray {
+    queries: Array<userQuery>;
+}
+
+
+let usersQueriesHistory: { [userId: string]: UserQueriesArray } = {};
 
 //TODO: That would be retrieve from a database or a file, not hardcoded
 let arrayOfUsers: Array<UserType> = [];
@@ -67,6 +79,7 @@ setTimeout(() => {
 setTimeout(() => {
     totalQueriesToday = 0;
 }, 3600*12);
+
 
 
 const splitMessage = (message: string, arrayOfResponses: Array<string> ) => {
@@ -109,7 +122,7 @@ const processUserCounter = async (userId:string) => {
     // and before everything, we need to check the queries of users at the start of the bot
 
 }
-client.on(Events.MessageCreate, async (message: any) => {
+client.on(Events.MessageCreate, async (message: Message) => {
     
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses: Array<string> = [];
@@ -139,8 +152,8 @@ client.on(Events.MessageCreate, async (message: any) => {
 
         // Message logging
         if (!message.content.includes(botIdMention)) {
-            console.log(`\n${message.author.username}: '{${message.content}}'
-                In the channel: ${message.channel.name}, At ${message.createdAt}\n`);
+            // console.log(`\n${message.author.username}: '{${message.content}}'
+            //     In the channel: ${message.channel.name}, At ${message.createdAt}\n`);
             return;
             }
 
@@ -169,7 +182,7 @@ client.on(Events.MessageCreate, async (message: any) => {
 
                 if (message.attachments.size > 0) {
                     const attachment = message.attachments.first();
-                    const imageUrl = attachment.url;
+                    const imageUrl = attachment?.url;
         
                     try {
                         const analysisResult = await queryOpenAIForImage(imageUrl, question);
@@ -213,17 +226,56 @@ client.on('interactionCreate', async (interaction: any) => {
             const queriesOfTheUser = await processUserCounter(userAuthor.id);
             console.log("The user has made: ", queriesOfTheUser, " queries");
 
-            if (queriesOfTheUser >= 5){
+            if (queriesOfTheUser >= 10){
                 interaction.followUp(`${userAuthor}: Sorry, you have reached the limit of queries for now. Try again in 4 hours.`);
                 return;
             }
 
-            if (totalQueriesToday >= 20){
+            if (totalQueriesToday >= 200){
                 interaction.followUp(`${userAuthor}: Sorry, the limit of queries for today has been reached. Try again tomorrow.`);
                 return;
             }
 
-            const answer = await queryOpenAI(question);
+            const userIsPremium = adminIds.includes(userAuthor.id); //TODO: In the near future, change this to a function.
+            
+            let answer = null;
+
+            if (userIsPremium){
+
+                if (!usersQueriesHistory[userAuthor.id]) {
+                    // Initialize if the user does not have any queries made by now
+                    usersQueriesHistory[userAuthor.id] = { queries: [] };
+                }
+
+                //First we update just the query
+                usersQueriesHistory[userAuthor.id]?.queries?.push({query: question, response: ''});
+
+                answer = await queryOpenAI(question, usersQueriesHistory[userAuthor.id]['queries']);
+
+                //Finally, whe update the response of the query defined above
+                const lastElement = usersQueriesHistory[userAuthor.id]['queries']?.length - 1
+
+                usersQueriesHistory[userAuthor.id]['queries'][lastElement]['response']
+                = answer?.choices[0]?.message?.content;
+                console.log("usersQueriesHistory", usersQueriesHistory);
+            }
+
+            // interface userQuery {
+            //     query: string;
+            //     response: string | null;
+            // }
+            
+            // interface UserQueriesArray {
+            //     queries: Array<userQuery>;
+            // }
+            
+            
+            // let usersQueriesHistory: { [userId: string]: UserQueriesArray } = {};
+            
+            else{
+                answer = await queryOpenAI(question);
+            }
+
             const finalResponse = answer?.choices[0]?.message?.content
 
             if (finalResponse.length >= 1950){
@@ -336,7 +388,8 @@ client.on('interactionCreate', async (interaction: any) => {
             // Defer the reply for asynchronous actions that take time
             await interaction.deferReply();
 
-            let {global_logs} = await getFromConfig('global_logs');
+            let { global_logs } = await getFromConfig('global_logs');
+            console.log('global_logs', global_logs);
             global_logs = global_logs ? 'enabled' : 'disabled';
 
             if (global_logs === null) {

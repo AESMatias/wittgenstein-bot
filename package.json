@@ -1,6 +1,6 @@
 {
   "name": "wittgenstein-bot",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch index.ts",
@@ -20,7 +20,8 @@
     "ml-matrix": "^6.11.1",
     "natural": "^8.0.1",
     "openai": "^4.56.0",
-    "pm2": "^5.4.2"
+    "pm2": "^5.4.2",
+    "winston": "^3.14.2"
   },
   "devDependencies": {
     "@types/natural": "^5.1.5",

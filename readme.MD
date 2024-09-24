@@ -84,3 +84,15 @@ kill -9 PID
 
 
 # That's it, your bot is ready to go! 🚀 
+
+
+## TO-DO
+- ProcessAnyMessage must be more generic to logging through winston dependency.
+
+- Assignations for config statements like:
+- - Max number of queries per user
+- - Max number of queries per day
+- - Admin/premium users list
+- - More...
+
+#
