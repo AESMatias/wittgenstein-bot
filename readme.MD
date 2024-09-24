@@ -25,8 +25,13 @@ Create a `.env` file from the sample provided and populate it with your API keys
 
 cp .env.sample .env
 sudo nano .env
+#Save changes with ctrl+o and return (enter)
+
+### Then, we need to build our /dist directory because of the project is made in TypeScript:
+
+npm run build
 ```
-#### API_KEY=your_api_key_here
+#### API_KEY=your_discord_api_key_here
 #### OPENAI_API_KEY=your_openai_api_key_here
 #### GEMINIAI_API_KEY=your_gemini_ai_key_here
 
@@ -40,7 +45,9 @@ Use PM2 to start the application using the ecosystem configuration file located 
 
 - Install [PM2](https://pm2.keymetrics.io/) in your server/system
 
-Then, in the root repository folder, just start the pm2 instance by using:
+
+
+Then, in the root of you recently created build directory, just start the pm2 instance by using:
 
 ``` bash
 pm2 start config/ecosystem.config.js

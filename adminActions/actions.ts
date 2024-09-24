@@ -8,7 +8,7 @@ const {configObject} = require(path.join(__dirname, '..', 'config', 'loadSetting
 
 let {cachedConfig} = configObject;
 
-const setNewGlobalLogsStatus = async (newStatus) => {
+const setNewGlobalLogsStatus = async (newStatus:boolean) => {
 
     if (typeof newStatus !== 'boolean') {
       return console.error('The new status for "global_logs" must be of type boolean');
@@ -28,19 +28,19 @@ const setNewGlobalLogsStatus = async (newStatus) => {
     return configObject.cachedConfig.global_logs;
 };
 
-const modifyLogs = async (message, changeTo ,username='Admin') => {
+const modifyLogs = async (changeTo:boolean) => {
 
-    if (!(message instanceof Message)){
-        console.error('Message is not an instance of Message class');
-        return;
-    }
+    // if (!(message instanceof Message)){
+    //     console.error('Message is not an instance of Message class');
+    //     return;
+    // }
 
     try {
         let newLogStatus = await setNewGlobalLogsStatus(changeTo);
         return newLogStatus;
         } 
     catch (err) {
-      console.error('Error finding log file:', err.message);
+      console.error('Error finding log file:', err);
       return null;
     }
 };

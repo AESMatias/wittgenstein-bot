@@ -20,7 +20,7 @@ const findLogFile = (username, date) => {
         
 
         if (foundFile && foundFile !== undefined) {
-            console.log('Found file:', foundFile);
+            // console.log('Found file:', foundFile);
             const fullPath = path.join(logsDirectory, foundFile);
             resolve(fullPath); // Resolve the promise with the full path of the found file
         } 
@@ -44,30 +44,20 @@ const findLogFile = (username, date) => {
     };
 
 
-const retrieveUserLogs = async (message, username) => {
+const retrieveUserLogs = async (username) => {
 
-    if (!(message instanceof Message)){
-        console.error('Message is not an instance of Message class');
-        return;
-    }
-
-    const messageAuthor = message.author.username;
     const todayTimestamp = new Date();
     const todayDate = todayTimestamp.getDate();
     const todayMonth = todayTimestamp.getMonth();
     const todayFullDate = `${todayDate}-${todayMonth}-${todayTimestamp.getFullYear()}`;
-    
-    if (message instanceof Message) {
-
-        try {
-            const filePath = await findLogFile(username, todayFullDate);
-            return filePath;
-          } catch (err) {
-            console.error(`Error finding log file for username${username}:`, err.message);
-            return null;
-          }
-
-    }
+ 
+    try {
+        const filePath = await findLogFile(username, todayFullDate);
+        return filePath;
+        } catch (err) {
+        console.error(`Error finding log file for username${username}:`, err);
+        return null;
+        }
 };
 
 module.exports = retrieveUserLogs;

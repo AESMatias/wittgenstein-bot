@@ -44,7 +44,7 @@ const queryOpenAI = async (prompt) => {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "gpt-4",
+                model: "gpt-4o-mini",
                 messages: [
                     {
                         role: "system",

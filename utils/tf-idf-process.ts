@@ -168,10 +168,10 @@ const processTheInput = (inputMessage: string): string => {
     const response = getTheMaxArray(cosineSimilarities)
 
     if (response[0]) {
-        return `!${response[1]}`;
+        return `${response[1]}`;
     }
 
-    return `!${inputMessage}`;
+    return `${inputMessage}`;
 };
 
 module.exports = {
