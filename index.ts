@@ -259,18 +259,6 @@ client.on('interactionCreate', async (interaction: any) => {
                 = answer?.choices[0]?.message?.content;
                 console.log("usersQueriesHistory", usersQueriesHistory);
             }
-
-            // interface userQuery {
-            //     query: string;
-            //     response: string | null;
-            // }
-            
-            // interface UserQueriesArray {
-            //     queries: Array<userQuery>;
-            // }
-            
-            
-            // let usersQueriesHistory: { [userId: string]: UserQueriesArray } = {};
             
             else{
                 answer = await queryOpenAI(question);
@@ -376,7 +364,7 @@ client.on('interactionCreate', async (interaction: any) => {
         interaction.reply({ embeds: [embed] });
         } catch (error) {
             console.error('Error showing the manual:', error);
-            interaction.reply(`There was an error showing the manual. Please try again later.`);
+            interaction.followUp(`There was an error showing the manual. Please try again later.`);
         }
     }
 
@@ -418,7 +406,7 @@ client.on('interactionCreate', async (interaction: any) => {
                 const logFile = await retrieveUserLogs(userRequested);
             
                 if (!logFile) {
-                    interaction.reply(`${userAuthor} Sorry, there was an error retrieving the logs.`);
+                    interaction.followUp(`${userAuthor} Sorry, there was an error retrieving the logs.`);
                     return;
                 }
 
@@ -428,7 +416,7 @@ client.on('interactionCreate', async (interaction: any) => {
             } 
             catch (error) {
                 console.error('Error retrieving the logs:', error);
-                interaction.reply(`There was an error retrieving the logs. Please try again later.`);
+                interaction.followUp(`There was an error retrieving the logs. Please try again later.`);
             }
         }
 
