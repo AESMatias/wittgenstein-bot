@@ -1,3 +1,5 @@
+import { description } from "../showImage";
+
 const { ApplicationCommandOptionType } = require('discord.js');
 
 export const availableCommands = [
@@ -46,5 +48,10 @@ export const availableCommands = [
                 required: true
             }
         ]
+    },
+    {
+        name: 'new_cool_command',
+        description: 'this is a new cool command',
+        usage: '/new_command'
     }
 ];

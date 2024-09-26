@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { ApplicationCommand, Message } from "discord.js";
 
 require('dotenv').config();
 const path = require('path');
@@ -7,8 +7,6 @@ const { processTheInput } = require(path.join(__dirname, 'utils', 'tf-idf-proces
 const retrieveUserLogs = require('./retrieveUserLogs.js');
 
 const { Client, Events, EmbedBuilder} = require('discord.js');
-const axios = require('axios');  // TODO: I think i should use fetch instead of axios xd
-// const fetch = require('node-fetch');
 const { channelIdGeneral, adminIds } = require(path.join(__dirname, 'config', 'stableSettings'));
 const { modifyLogs, updateTotalQueries } = require(path.join(__dirname, 'adminActions', 'actions'));
 const { getFromConfig } = require(path.join(__dirname, 'config', 'loadSettings'));
@@ -16,32 +14,40 @@ const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
 const { possibleCommands } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
 const { availableCommands } = require(path.join(__dirname, 'utils', 'availableCommands'));
 
-// const { APIMessage } = require('discord-api-types/v10');
-
 
 interface UserType {
     userId: string;
     queries: number;
 }
 
+interface userQuery {
+    query: string;
+    response: string | null;
+}
+
+interface UserQueriesArray {
+    queries: Array<userQuery>;
+}
 
 const client = new Client({
     intents: 3276799
 });
 
+const token = process.env.API_KEY;
+client.login(token);
 
-client.on(Events.ClientReady, async () => {
+
+const checkCommands = async () => {
+
     try{
-        console.log(`The bot is ready: ${client?.user?.username}`);
-
+        // console.log(`The bot is ready: ${client?.user?.username}`);
         const currentCommands = await client?.application?.commands?.fetch();
 
         // Check if the commands need to be updated based on the available commands defined above
-        const isUpdateNeeded = availableCommands
-        .some((command:any) => !currentCommands
-        .some((current:any) => current?.name === command?.name 
-        && current?.description === command?.description)) 
-        || currentCommands?.size !== availableCommands.length;
+        const isUpdateNeeded:boolean = 
+        availableCommands.some((command:any) => !currentCommands.some((current:any) => 
+            current?.name === command?.name 
+        && current?.description === command?.description));
 
         if (isUpdateNeeded) {
             console.log('Updating commands...');
@@ -54,16 +60,12 @@ client.on(Events.ClientReady, async () => {
     catch (error) {
         console.error('Error setting the commands and starting the bot:', error);
     }
+
+}
+
+client.on(Events.ClientReady, async () => {
+    await checkCommands()
 });
-
-interface userQuery {
-    query: string;
-    response: string | null;
-}
-
-interface UserQueriesArray {
-    queries: Array<userQuery>;
-}
 
 
 let usersQueriesHistory: { [userId: string]: UserQueriesArray } = {};
@@ -440,6 +442,3 @@ client.on(Events.GuildMemberAdd, async (member:any) => {
         Send me images, code, text, or anything you want to know and I will try to help you.
         To see the list of commands, type:\n!sudo man or just tag me @WittgensteinBOT`);
 });
-
-const token = process.env.API_KEY;
-client.login(token);
