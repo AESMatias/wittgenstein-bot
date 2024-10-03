@@ -1,5 +1,3 @@
-import { description } from "../showImage";
-
 const { ApplicationCommandOptionType } = require('discord.js');
 
 export const availableCommands = [

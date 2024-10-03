@@ -40,7 +40,7 @@ client.login(token);
 const checkCommands = async () => {
 
     try{
-        // console.log(`The bot is ready: ${client?.user?.username}`);
+        console.log(`The bot is ready: ${client?.user?.username}`);
         const currentCommands = await client?.application?.commands?.fetch();
 
         // Check if the commands need to be updated based on the available commands defined above
