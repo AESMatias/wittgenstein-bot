@@ -396,7 +396,7 @@ client.on('interactionCreate', async (interaction: any) => {
             };
 
             if (!userRequested) {
-                interaction.followUp(`${userAuthor} \n- Log status => **${global_logs}** \n\nIf you want to enable or disable the logs globally, try !logs enable or !logs disable.`);
+                interaction.followUp(`${userAuthor} \n- Log status => **${global_logs}** \n\nIf you want to enable or disable the logs globally, try /logs enable or /logs disable.`);
             }
 
             // interaction.followUp(`${userAuthor} You need to specify the username of the user you want to see the logs. Try **!logs <username>**\
@@ -438,7 +438,7 @@ client.on('interactionCreate', async (interaction: any) => {
 client.on(Events.GuildMemberAdd, async (member:any) => {
     const channel = await client.channels.fetch(channelIdGeneral);
     channel.send(`Welcome to the server, <@${member.user.id}>!\n
-        I'm an AI powered BOT, You can ask me anything you want, I'm here to help you.
-        Send me images, code, text, or anything you want to know and I will try to help you.
-        To see the list of commands, type:\n!sudo man or just tag me @WittgensteinBOT`);
+I'm an AI powered BOT, You can ask me anything you want, I'm here to help you.
+Send me images, code, text, or anything you want to know and I will try to help you.
+To see the list of commands, use the /sudo_man in the chat.`);
 });
