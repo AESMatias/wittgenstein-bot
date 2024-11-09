@@ -35,6 +35,19 @@ export const availableCommands = [
         usage: '/sudo man'
     },
     {
+        name: 'query_latex',
+        description: 'I will solve the problem using AI, que response will be a image using LaTeX.',
+        usage: '/query_latex <question>',
+        options: [
+            {
+                name: 'query_input',
+                description: 'The query input to process',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            }
+        ]
+    },
+    {
         name: 'query',
         description: 'Ask me a question, I respond using AI.',
         usage: '/query <question>',

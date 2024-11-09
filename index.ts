@@ -1,10 +1,11 @@
-import { ApplicationCommand, Message } from "discord.js";
+import { ApplicationCommand, Message, AttachmentBuilder} from "discord.js";
 
 require('dotenv').config();
 const path = require('path');
 const { processAnyMessage }  = require(path.join(__dirname,'processAnyMessage.js'));
 const { processTheInput } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
 const retrieveUserLogs = require('./retrieveUserLogs.js');
+const { generateImage } = require(path.join(__dirname,'utils', 'generateLatexImage'));
 
 const { Client, Events, EmbedBuilder} = require('discord.js');
 const { channelIdGeneral, adminIds } = require(path.join(__dirname, 'config', 'stableSettings'));
@@ -187,11 +188,35 @@ client.on(Events.MessageCreate, async (message: Message) => {
                     const imageUrl = attachment?.url;
         
                     try {
+                        let generatedImage = '';
                         const analysisResult = await queryOpenAIForImage(imageUrl, question);
                         const queriesOfTheUser = await processUserCounter(message.author.id);
                         console.log("The user has made: ", queriesOfTheUser, " queries");
 
+                        // si la question tiene latex, entonces se llama a una funcion que genera la imagen
+                        // en base a analysisResult
+                        if (question.toLocaleLowerCase().includes('latex')) {
+                            try {
+                                generatedImage = await generateImage(analysisResult);
+
+                            } catch (error) {
+                                console.error('Error generating the image:', error);
+                                message.channel.send(`There was an error generating the image. Please try again later.`);
+                            }
+                        }
+                        if (generatedImage === ''){
                         message.channel.send(`${message.author}: ${analysisResult}`);
+                        }
+                        else {
+                            const attachedGeneratedImage = new AttachmentBuilder(generatedImage)
+                            .setName(`WittgensteinBOT_LaTeX_${Date.now()}.png`)
+                            .setDescription('Generated LaTeX image');
+                            message.channel.send({
+                                content: `${message.author}: ${analysisResult}`,
+                                files: [attachedGeneratedImage],
+                            });
+                        }
+
                     } catch (error) {
                         console.error('Error analyzing the image:', error);
                         message.channel.send(`There was an error analyzing the image. Please try again later.`);
@@ -244,7 +269,8 @@ client.on('interactionCreate', async (interaction: any) => {
 
             const totalQueries = await updateTotalQueries()
             if (totalQueries >= 2000){
-                interaction.followUp(`${userAuthor}: Sorry, the global limit of queries has been reached. Contact the admin.`);
+                //TODO: Put this @roles outside, in a config file or something better.
+                interaction.followUp(`${userAuthor}: Sorry, the global limit of queries has been reached. Contact the @Admin or @Moderator.`);
                 return;
             }
 
@@ -357,14 +383,17 @@ client.on('interactionCreate', async (interaction: any) => {
         const embed = new EmbedBuilder()
             .setTitle('WittgensteinBOT Manual')
             .setDescription(`
-                /query <question>: Ask me a question, I respond using AI.\n
+                /query_latex <question>: I will respond using AI, but the answer will be an image in LaTeX format.\n
+                /query <question>: Ask me a question, I will respond using AI.\n
                 /logs: Show the logs status and info.\n
                 /logs_user <username>: Show the logs of the user.\n
                 /logs_enable: Enable the logs globally (must be root).\n
                 /logs_disable: Disable the logs globally (must be root).\n
-                @WittgensteinBOT + attached image: I process the image using AI image analysis.\n
+                @WittgensteinBOT + attached image + <optional question>: I process the image using AI\
+                image analysis, if you add "latex" i will send you an image of the LaTeX response.\n
                 /image <@user>: Show the image of the mentioned user (unavailable).\n
                 /show <prompt>: Generate an image based on the prompt (unavailable).\n
+                /sudo_man: Show this manual.\n
             `)
             .setFooter({
                 text: `Requested by ${interaction.user.tag}`,

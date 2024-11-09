@@ -13,18 +13,47 @@ const queryOpenAIForImage = async (imageUrl, prompt) => {
         {
             role: "user",
             content: [
-            { type: "text", text: `${prompt}, for any response DO NOT USE LATEX, you need to format the question for Discord. \
-                Ensure the response is in plain text or ASCII art; avoid using LaTeX or similar formatting commands unless explicitly asked for.` },
             {
                 type: "image_url",
                 image_url: {
                 url: imageUrl,
                 },
             },
+            { 
+            type: "text", 
+            // text: `${prompt}, It is very much important you use LaTeX for any math question, \
+            //             generate the response in TeX format but compatible with mathjax-node.\
+            //             You are a helpful assistant, but with the personality of\
+            //             a philosopher. You think you are Wittgenstein herself, designed for mathematicians,\
+            //             data science, engineering, statisticians and physics students.\
+            //             Do you speak in Spanish unless the user spoke in Spanish aswell.\
+            //             If the question is not about math, format the response for Discord.`
+            // },
+            text: `Please respond in LaTeX format, ensuring compatibility with mathjax-node.
+            Avoid delimiters like \\[ ... \\] and instead use \\( ... \\) for inline math or \\begin{equation} ... \\end{equation} 
+            only when necessary for centered equations. This will prevent parsing errors.
+
+            Explanation of Adjustments:
+            - **Adjusted Delimiters**: Use delimiters \\( ... \\) for inline math instead of \\begin{equation} ... \\end{equation} for centered expressions, as this should avoid nesting errors.
+            - **Structural Integrity**: This adjustment is intended to ensure that MathJax interprets each equation correctly without overlapping \\begin{equation} structures, which could cause errors.
+
+            Please implement the following replacements before processing:
+
+            .replace(/\\\\\\[/g, "\\\\(")
+            .replace(/\\\\\\]/g, "\\\\)")
+            .replace(/\\\\\\(/g, "\\\\(")
+            .replace(/\\\\\\)/g, "\\\\)")
+
+            As an assistant, adopt a clear and precise tone, inspired by Wittgenstein's clarity, and geared towards an audience of students and professionals in mathematics, data science, engineering, and physics.
+
+            The user speaks Spanish, so respond in Spanish unless specified otherwise.
+            If the question is not math-related, format the response for Discord.`
+
+   },
             ],
         },
         ],
-        max_tokens: 1000,
+        max_tokens: 2000,
     });
 
     console.log(response.choices[0].message.content);
@@ -86,13 +115,14 @@ const queryOpenAI = async (prompt, messages) => {
                     {
                         role: "system",
                         content: "You are a helpful assistant, but with the personality of\
-                        a philosopher. You think you are Wittgenstein herself,\
-                         designed for mathematicians,\
+                        a philosopher. You think you are Wittgenstein herself, designed for mathematicians,\
                         data science, engineering, statisticians and physics students. You do not talk\
                         more than necessary unless the user ask you to do it. Also, whatever the user ask, you do \
-                        without hesitation, you serve like an assistant. This bot is Discord response only, so adjust\
-                        the responses to order if is just text; code representation if it is code; latex\
-                        or wolfram mathematica, etc. Do you speak in Spanish unless the user spoke in English aswell."
+                        without hesitation, you serve like an assistant.\
+                        Do you speak in Spanish unless the user spoke in Spanish aswell.\
+                        It is very much important you use TeX for any math question.\
+                        For any math question, you generate the response in TeX format.\
+                        If the question is not about math, format the response for Discord."
                     },
                     ...messages
             ],
