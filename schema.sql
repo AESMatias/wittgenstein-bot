@@ -23,19 +23,14 @@ CREATE TABLE IF NOT EXISTS messages (
     message_timestamp TIMESTAMP NOT NULL
 );
 
--- General config (like config/generalConfig.json)
-CREATE TABLE IF NOT EXISTS config (
-  key VARCHAR(255) PRIMARY KEY,
-  value TEXT
-);
-
 INSERT INTO secret_channels (channel_name) VALUES
   ('secret'),
   ('toma-de-ramos'),
   ('private')
-  ON CONFLICT (channel_name) DO NOTHING;;
+  ON CONFLICT (channel_name) DO NOTHING;
 
 INSERT INTO config (key, value) VALUES
   ('global_logs', 'true'),
   ('total_queries', '1')
-  ON CONFLICT (key) DO NOTHING;;
+  ON CONFLICT (key) DO NOTHING;
+
