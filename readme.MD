@@ -1,4 +1,4 @@
-# Wittgenstein BOT 🤖
+# Wittgenstein BOT 🤖 (Obsolete READ.ME, Heroku branch works differently)
 
 This repository contains the code for the Wittgenstein AI BOT and all you need in order to run it by yourself! It uses PM2 for process management and loads environment variables from a `.env` file.
 
@@ -7,7 +7,7 @@ This repository contains the code for the Wittgenstein AI BOT and all you need i
 - [Node.js](https://nodejs.org/) (LTS version recommended)
 - [PM2](https://pm2.keymetrics.io/) (for process management)
 
-# Setup steps ( very fastforward! ) 🚀
+# Setup steps ( very fast-forward! ) 🚀
 
 ### 1. **Clone the Repository and Install Dependencies**
 
