@@ -1,7 +1,7 @@
 import { ApplicationCommand, Message, AttachmentBuilder} from "discord.js";
 
 require('dotenv').config();
-const path = require('path');
+const path = require('node:path');
 const { processAnyMessage }  = require(path.join(__dirname,'processAnyMessage.js'));
 const { processTheInput } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
 const retrieveUserLogs = require('./retrieveUserLogs.js');
@@ -14,6 +14,9 @@ const { getFromConfig } = require(path.join(__dirname, 'config', 'loadSettings')
 const { queryOpenAI, queryOpenAIForImage } = require('./openAI_module.js');
 const { possibleCommands } = require(path.join(__dirname, 'utils', 'tf-idf-process'));
 const { availableCommands } = require(path.join(__dirname, 'utils', 'availableCommands'));
+
+const fs = require('node:fs');
+const { Pool } = require('pg');
 
 
 interface UserType {
@@ -37,6 +40,31 @@ const client = new Client({
 const token = process.env.API_KEY;
 client.login(token);
 
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+    rejectUnauthorized: false
+    }
+});
+
+async function createTables() {
+
+    // Initiate the pool for the database
+    try{
+      const client = await pool.connect();
+      const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
+      await client.query(sql);
+  
+      console.log('Tables created successfully');
+      client.release();
+    }
+
+    catch (error) {
+    console.error('Error creating the tables:', error); //TODO: This shouldn't work like this, first we need to check if the tables exist.
+    }
+
+}
 
 const checkCommands = async () => {
 
@@ -65,7 +93,8 @@ const checkCommands = async () => {
 }
 
 client.on(Events.ClientReady, async () => {
-    await checkCommands()
+    await checkCommands();
+    await createTables();
 });
 
 
@@ -131,7 +160,9 @@ client.on(Events.MessageCreate, async (message: Message) => {
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses: Array<string> = [];
     
-    await processAnyMessage(message);
+    if (!message.author.bot && message.content.length > 0){
+        await processAnyMessage(message);
+    }
 
     try {
 
