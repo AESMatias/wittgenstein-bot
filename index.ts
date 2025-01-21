@@ -8,6 +8,7 @@ const retrieveUserLogs = require('./retrieveUserLogs.js');
 const { generateImage } = require(path.join(__dirname,'utils', 'generateLatexImage'));
 const express = require('express');
 const app = express();
+const { Request, Response } = require('express');
 
 const { Client, Events, EmbedBuilder} = require('discord.js');
 const { channelIdGeneral, adminIds } = require(path.join(__dirname, 'config', 'stableSettings'));
@@ -98,7 +99,8 @@ const checkCommands = async () => {
 client.on(Events.ClientReady, async () => {
     await checkCommands();
     await createTables();
-    app.get('/', (req, res) => res.send("Bot is running, this root endpoint doesn't do anything, don't try, you're welcome."));
+    //TODO: Fix this type
+    app.get('/', (req: Request, res: Response) => res.send("Bot is running, this root endpoint doesn't do anything, don't try, you're welcome."));
     const port = process.env.PORT || '0.0.0.0';
 
     app.listen(port, () => {
