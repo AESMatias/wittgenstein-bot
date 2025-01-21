@@ -14,6 +14,15 @@ CREATE TABLE IF NOT EXISTS users (
     nickname VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS messages (
+    message_id BIGINT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(user_id),
+    channel_id BIGINT NOT NULL,
+    channel_name VARCHAR(255) NOT NULL,
+    message_content TEXT NOT NULL,
+    message_timestamp TIMESTAMP NOT NULL
+);
+
 -- General config (like config/generalConfig.json)
 CREATE TABLE IF NOT EXISTS config (
   key VARCHAR(255) PRIMARY KEY,
