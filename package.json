@@ -1,17 +1,17 @@
 {
   "name": "wittgenstein-bot",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && cp ./schema.sql dist/schema.sql",
+    "build": "tsc",
     "start": "node ."
   },
   "keywords": [],
   "author": "AESMatias",
   "license": "MIT",
-  "description": "A Discord AI BOT.",
+  "description": "A Discord AI powered BOT.",
   "dependencies": {
     "axios": "^1.7.5",
     "compute-cosine-similarity": "^1.1.0",
@@ -31,5 +31,9 @@
     "@types/node": "^22.5.5",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2"
-  }
+  },
+  "engines": {
+  "node": "22.x"
+
+}
 }

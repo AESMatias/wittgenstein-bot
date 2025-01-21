@@ -41,6 +41,7 @@ const token = process.env.API_KEY;
 client.login(token);
 
 
+//TODO: This is defined one time, and again down below, we should use await pool.query(sql);
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
