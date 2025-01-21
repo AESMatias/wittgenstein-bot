@@ -99,7 +99,11 @@ const checkCommands = async () => {
 client.on(Events.ClientReady, async () => {
     await checkCommands();
     await createTables();
-    //TODO: Fix this type
+    //TODO: Fix this type to avoid using strict mode false on tsconfig.json
+    // Fck, i love this chill music, I used to listen when I was studying Aristotle, Kant, and the others. OMG I'm getting old https://youtu.be/47vORPiiC3g
+    // Leonardo once said: "Kids, be gentle with me, I'm an old man" I don't understand how is possible to be smart and don't have a heart at the same time,
+    // It's the opposite of the greek though; the opposite of Plato and Aristotle, who once said: "The good man not only does good things, but also feels good things."
+    // Just Aristotle makes me feel divine feelings, no other man, besides Kant and another few. I genuinely believe he was the most wisdom man in the world, the "Limit of the human intellect".
     app.get('/', (req, res) => res.send("Bot is running, this root endpoint doesn't do anything, don't try, you're welcome."));
     const port = process.env.PORT || '0.0.0.0';
 
