@@ -80,7 +80,7 @@ const isSecretChannel = async (channelName) => {
     const client = await pool.connect();
 
     // Check if the user exists
-    const userResult = await client.query('SELECT 1 FROM users WHERE user_id = $1', [messageAuthorId]);
+    const userResult = await client.query('SELECT 1 FROM users WHERE user_id = $1', [messageAuthorId]); //TODO: This would be cached, so the cost and time would be reduced.
 
     if (userResult.rows.length === 0) { // Insert the user if it doesn't exist
 
@@ -98,9 +98,8 @@ const isSecretChannel = async (channelName) => {
     );
 
     console.log('Message from user', messageAuthor, 'saved to the database.');
-
-    // Release the connection
     client.release();
+    
   } catch (error) {
     console.error('Error saving message to database:', error);
   }
