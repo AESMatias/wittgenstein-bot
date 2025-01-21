@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS config (
 
 INSERT INTO secret_channels (channel_name) VALUES
   ('secret'),
-  ('toma_de_ramos'),
+  ('toma-de-ramos'),
   ('private')
   ON CONFLICT (channel_name) DO NOTHING;;
 

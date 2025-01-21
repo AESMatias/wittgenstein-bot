@@ -61,7 +61,7 @@ async function createTables() {
     }
 
     catch (error) {
-    console.error('Error creating the tables:', error); //TODO: This shouldn't work like this, first we need to check if the tables exist.
+    console.error('Error creating the tables:', error);
     }
 
 }
@@ -441,8 +441,15 @@ client.on('interactionCreate', async (interaction: any) => {
     }
 
     else if (requestedCommand.startsWith('logs')) {
-        const userRequested = interaction?.options?.getString('username');
-        console.log('userRequested', userRequested);
+        let userRequested = interaction?.options?.getString('username');
+
+        //We cannot use @ just like that, because it is not a valid username, it's the id. Apply this in the future will be
+        //increase the cost of the query, so we need to avoid it.
+        // if (userRequested.includes('@')) {
+        //     userRequested = userRequested.slice(1);
+        // }
+
+        console.log('The user', userAuthor, 'requested the logs of', userRequested);
 
         try{
             // Defer the reply for asynchronous actions that take time
