@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc && cp ./schema.sql ./dist/schema.sql",
     "start": "node ."
   },
   "keywords": [],
