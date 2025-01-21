@@ -100,7 +100,7 @@ client.on(Events.ClientReady, async () => {
     await checkCommands();
     await createTables();
     //TODO: Fix this type
-    app.get('/', (req: Request, res: Response) => res.send("Bot is running, this root endpoint doesn't do anything, don't try, you're welcome."));
+    app.get('/', (req, res) => res.send("Bot is running, this root endpoint doesn't do anything, don't try, you're welcome."));
     const port = process.env.PORT || '0.0.0.0';
 
     app.listen(port, () => {
