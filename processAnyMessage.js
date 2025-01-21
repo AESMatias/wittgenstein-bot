@@ -38,17 +38,17 @@ const processAnyMessage = async (message) => {
   const todayTime = todayTimestamp.toLocaleTimeString();
 
 
-  const isSecretChannel = async (channelName) => {
-    try {
-      const client = await pool.connect();
-      const result = await client.query('SELECT 1 FROM secret_channels WHERE channel_name = $1', [channelName]);
-      client.release();
-      return result.rows.length > 0;
-    } catch (error) {
-      console.error('Error verifying if channel is secret:', error);
-      throw error;
-    }
+const isSecretChannel = async (channelName) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT 1 FROM secret_channels WHERE channel_name LIKE $1', [`%${channelName}%`]);
+    client.release();
+    return result.rows.length > 0;
+  } catch (error) {
+    console.error('Error verifying if channel is secret:', error);
+    throw error;
   }
+};
   
   const getGlobalLogsStatus = async () => {
     try {
