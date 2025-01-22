@@ -40,6 +40,8 @@ const client = new Client({
     intents: 3276799
 });
 
+const GUILD_TEXT_CODE = 0;
+
 const token = process.env.API_KEY;
 client.login(token);
 
@@ -175,8 +177,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
         return;
     }
 
-    
-    if (message.channel?.type === 1) { // 1 is the code for direct message code.
+    if (message.channel?.type !== GUILD_TEXT_CODE) {
         message.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
         return;
     }
@@ -298,7 +299,7 @@ client.on('interactionCreate', async (interaction: any) => {
     const userAuthor = interaction.user;
     const arrayOfResponses: Array<string> = [];
 
-    if (interaction.channel?.type === 1) { // 1 is the code for direct message code.
+    if (interaction.channel?.type !== GUILD_TEXT_CODE) {
         interaction.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
         return;
     }
