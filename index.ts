@@ -174,6 +174,13 @@ client.on(Events.MessageCreate, async (message: Message) => {
         message.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
         return;
     }
+
+    
+    if (message.channel?.type === 1) { // 1 is the code for direct message code.
+        message.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
+        return;
+    }
+
     
     const botIdMention = '@1248874590416011264'
     const arrayOfResponses: Array<string> = [];
@@ -291,9 +298,7 @@ client.on('interactionCreate', async (interaction: any) => {
     const userAuthor = interaction.user;
     const arrayOfResponses: Array<string> = [];
 
-    if (!interaction.guild) {
-        interaction.reply("THE USER IS ", userAuthor);
-        console.log("THE USER IS ", userAuthor);
+    if (interaction.channel?.type === 1) { // 1 is the code for direct message code.
         interaction.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
         return;
     }
