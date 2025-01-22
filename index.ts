@@ -293,6 +293,7 @@ client.on('interactionCreate', async (interaction: any) => {
 
     if (!interaction.guild) {
         interaction.reply("THE USER IS ", userAuthor);
+        console.log("THE USER IS ", userAuthor);
         interaction.reply("I only respond to messages in the server, not in private messages.\n If you want to talk with me on private, please contact the admin.");
         return;
     }
