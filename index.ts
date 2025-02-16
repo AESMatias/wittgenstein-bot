@@ -270,17 +270,18 @@ client.on(Events.MessageCreate, async (message: Message) => {
             
                             for (let i = 0; i < arrayOfResponses.length; i++){
                                 console.log('Sending message', i+1);
-                                interaction.followUp(`${userAuthor} ${i+1}/${arrayOfResponses.length}: ${arrayOfResponses[i]}`);
+                                //interaction.followUp(`${userAuthor} ${i+1}/${arrayOfResponses.length}: ${arrayOfResponses[i]}`);
+                                message.channel.send(`${message.author}: ${arrayOfResponses[i]}`)
                             }
             
                             return;
                         }
                         
-                        if (generatedImage === ''){
-                        message.channel.send(`${message.author}: ${analysisResult}`);
-                        }
+                        //if (generatedImage === ''){
+                        //message.channel.send(`${message.author}: ${analysisResult}`);
+                        //}
                             
-                        else {
+                        if (1!=1) {
                             const attachedGeneratedImage = new AttachmentBuilder(generatedImage)
                             .setName(`WittgensteinBOT_LaTeX_${Date.now()}.png`)
                             .setDescription('Generated LaTeX image');
