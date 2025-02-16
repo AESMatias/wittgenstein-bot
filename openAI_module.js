@@ -37,7 +37,7 @@ const queryOpenAIForImage = async (imageUrl, prompt) => {
                 ]
         },
         ],
-        max_tokens: 2000,
+        max_tokens: 500, // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
     });
 
     console.log(response.choices[0].message.content);
@@ -110,7 +110,7 @@ const queryOpenAI = async (prompt, messages) => {
                     ...messages
             ],
             model: modelName,
-            max_tokens: 2000
+            max_tokens: 500 // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
         });
 
         return response;
