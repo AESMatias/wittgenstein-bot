@@ -37,7 +37,7 @@ const queryOpenAIForImage = async (imageUrl, prompt) => {
                 ]
         },
         ],
-        max_tokens: 500, // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
+        max_tokens: 350, // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
     });
 
     console.log(response.choices[0].message.content);
@@ -63,8 +63,8 @@ const queryOpenAI = async (prompt, messages) => {
             //If the user is premium, then the last four messages are saved so he can have a better context
             const lastFourMessages = [];
             //If the messages are more than 4, then the last four messages are saved
-            if (messages.length > 4){
-                messages = messages.slice(messages.length-4, messages.length);
+            if (messages.length > 2){
+                messages = messages.slice(messages.length-2, messages.length);
             }
 
             for (let i=0; i<messages.length; i++){
@@ -110,7 +110,7 @@ const queryOpenAI = async (prompt, messages) => {
                     ...messages
             ],
             model: modelName,
-            max_tokens: 500 // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
+            max_tokens: 350 // 500 tokens -> 1968 chars -> https://platform.openai.com/tokenizer
         });
 
         return response;
