@@ -255,15 +255,31 @@ client.on(Events.MessageCreate, async (message: Message) => {
                         if (question.toLocaleLowerCase().includes('latex')) {
                             try {
                                 generatedImage = await generateImage(analysisResult);
-
                             } catch (error) {
                                 console.error('Error generating the image:', error);
                                 message.channel.send(`There was an error generating the image. Please try again later.`);
                             }
                         }
+
+
+
+                        if (analysisResult.length >= 1950){
+                            splitMessage(analysisResult, arrayOfResponses);
+                            console.log('arrayOfResponses.length', arrayOfResponses.length);
+                            console.log('arrayOfResponses', arrayOfResponses);
+            
+                            for (let i = 0; i < arrayOfResponses.length; i++){
+                                console.log('Sending message', i+1);
+                                interaction.followUp(`${userAuthor} ${i+1}/${arrayOfResponses.length}: ${arrayOfResponses[i]}`);
+                            }
+            
+                            return;
+                        }
+                        
                         if (generatedImage === ''){
                         message.channel.send(`${message.author}: ${analysisResult}`);
                         }
+                            
                         else {
                             const attachedGeneratedImage = new AttachmentBuilder(generatedImage)
                             .setName(`WittgensteinBOT_LaTeX_${Date.now()}.png`)
