@@ -277,7 +277,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
                             return;
                         }
                         if (analysisResult.length < 1950){
-                                message.channel.send(`${message.author}: ${arrayOfResponses[i]}`);
+                                message.channel.send(`${message.author}: ${analysisResult}`);
                             return;
                         }
                         
