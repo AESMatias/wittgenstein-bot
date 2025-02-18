@@ -271,9 +271,13 @@ client.on(Events.MessageCreate, async (message: Message) => {
                             for (let i = 0; i < arrayOfResponses.length; i++){
                                 console.log('Sending message', i+1);
                                 //interaction.followUp(`${userAuthor} ${i+1}/${arrayOfResponses.length}: ${arrayOfResponses[i]}`);
-                                message.channel.send(`${message.author}: ${arrayOfResponses[i]}`)
+                                message.channel.send(`${message.author}: ${arrayOfResponses[i]}`);
                             }
             
+                            return;
+                        }
+                        if (analysisResult.length < 1950){
+                                message.channel.send(`${message.author}: ${arrayOfResponses[i]}`);
                             return;
                         }
                         
