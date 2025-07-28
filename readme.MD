@@ -10,6 +10,7 @@ This repository contains the code for the Wittgenstein AI BOT and all you need i
 # Slash commands explanation video (YT)
 
 https://youtu.be/74W84Vo2sjk
+
 [![Alt text](https://img.youtube.com/vi/74W84Vo2sjk/0.jpg)](https://youtu.be/74W84Vo2sjk)
 
 # Setup steps 🚀
