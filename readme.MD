@@ -7,7 +7,11 @@ This repository contains the code for the Wittgenstein AI BOT and all you need i
 - [Node.js](https://nodejs.org/) (LTS version recommended)
 - [PM2](https://pm2.keymetrics.io/) (for process management)
 
-# Setup steps ( very fast-forward! ) 🚀
+# Slash commands explanation video
+
+[![Alt text](https://img.youtube.com/vi/74W84Vo2sjk/0.jpg)](https://youtu.be/74W84Vo2sjk)
+
+# Setup steps 🚀
 
 ### 1. **Clone the Repository and Install Dependencies**
 
