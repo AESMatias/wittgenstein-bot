@@ -8,9 +8,9 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-  rejectUnauthorized: false
-  }
+  ssl: process.env.DATABASE_URL?.includes('localhost')
+    ? false
+    : (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false' ? { rejectUnauthorized: false } : undefined)
 });
 
 const processAnyMessage = async (message) => {
@@ -40,17 +40,12 @@ const processAnyMessage = async (message) => {
 
   const isSecretChannel = async (channelName) => {
     try {
-      const client = await pool.connect();
-      const result = await client.query('SELECT channel_name FROM secret_channels');
-      client.release();
-      
-      // Compare each channel name from the result with channelName through a for loop!
+      const result = await pool.query('SELECT channel_name FROM secret_channels');
       for (const row of result.rows) {
         if (channelName.includes(row.channel_name)) {
           return true;
         }
       }
-      
       return false;
     } catch (error) {
       console.error('Error verifying if channel is secret:', error);
@@ -61,15 +56,13 @@ const processAnyMessage = async (message) => {
   
   const getGlobalLogsStatus = async () => {
     try {
-      const client = await pool.connect();
-      const result = await client.query('SELECT value FROM config WHERE key = $1', ['global_logs']);
-      client.release();
+      const result = await pool.query('SELECT value FROM config WHERE key = $1', ['global_logs']);
       return result.rows[0]?.value === 'true';
     } catch (error) {
       console.error('Error at getting global logs status:', error);
       throw error;
     }
-  }
+  };
 
   const global_logs = await getGlobalLogsStatus();
   const is_secret_channel = await isSecretChannel(channelName);
@@ -85,30 +78,27 @@ const processAnyMessage = async (message) => {
   }
 
   try {
-    // Acquire a connection from the pool
     const client = await pool.connect();
+    try {
+      const userResult = await client.query('SELECT 1 FROM users WHERE user_id = $1', [messageAuthorId]);
 
-    // Check if the user exists
-    const userResult = await client.query('SELECT 1 FROM users WHERE user_id = $1', [messageAuthorId]); //TODO: This would be cached, so the cost and time would be reduced.
-
-    if (userResult.rows.length === 0) { // Insert the user if it doesn't exist
-
-      if (messageAuthorNickname === null) {
-        await client.query('INSERT INTO users (user_id, username, nickname) VALUES ($1, $2, $3)', [messageAuthorId, messageAuthor, 'No_nickname']);
+      if (userResult.rows.length === 0) {
+        const nickname = messageAuthorNickname || 'No_nickname';
+        await client.query(
+          'INSERT INTO users (user_id, username, nickname) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO NOTHING',
+          [messageAuthorId, messageAuthor, nickname]
+        );
       }
 
-      await client.query('INSERT INTO users (user_id, username, nickname) VALUES ($1, $2, $3)', [messageAuthorId, messageAuthor, messageAuthorNickname]);
+      await client.query(
+        'INSERT INTO messages (message_id, user_id, channel_id, channel_name, message_content, message_timestamp) VALUES ($1, $2, $3, $4, $5, TO_TIMESTAMP($6))',
+        [message.id, messageAuthorId, channelId, channelName, messageContent, messageTimestamp / 1000]
+      );
+
+      console.log('Message from user', messageAuthor, 'saved to the database.');
+    } finally {
+      client.release();
     }
-
-    // Insert the message
-    await client.query(
-      'INSERT INTO messages (message_id, user_id, channel_id, channel_name, message_content, message_timestamp) VALUES ($1, $2, $3, $4, $5, TO_TIMESTAMP($6))',
-      [message.id, messageAuthorId, channelId, channelName, messageContent, messageTimestamp / 1000]
-    );
-
-    console.log('Message from user', messageAuthor, 'saved to the database.');
-    client.release();
-    
   } catch (error) {
     console.error('Error saving message to database:', error);
   }

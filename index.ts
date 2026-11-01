@@ -49,27 +49,19 @@ client.login(token);
 //TODO: This is defined one time, and again down below, we should use await pool.query(sql);
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: {
-    rejectUnauthorized: false
-    }
+    ssl: process.env.DATABASE_URL?.includes('localhost')
+        ? false
+        : (process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'false' ? { rejectUnauthorized: false } : undefined)
 });
 
 async function createTables() {
-
-    // Initiate the pool for the database
-    try{
-      const client = await pool.connect();
+    try {
       const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
-      await client.query(sql);
-  
+      await pool.query(sql);
       console.log('Tables created successfully');
-      client.release();
+    } catch (error) {
+      console.error('Error creating the tables:', error);
     }
-
-    catch (error) {
-    console.error('Error creating the tables:', error);
-    }
-
 }
 
 const checkCommands = async () => {
